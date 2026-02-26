@@ -18,10 +18,12 @@ Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to w
 ## Key Constraints
 
 - `multi init` is **interactive** and cannot be scripted non-interactively.
+- Automation flow should use `multi.json` + `multi sync` (not `multi init`).
 - `CLAUDE.md` and `AGENTS.md` are **auto-generated** from `.cursor/rules/*.mdc` files. Never edit them directly.
 - All repos must have **clean working directories** before running `multi set-branch`.
 - `multi set-branch` and `multi git` are **disabled in monorepo mode**.
 - VS Code config files (`settings.json`, `launch.json`, `tasks.json`, `extensions.json`) at the workspace root are **generated** — do not edit directly. Use the repo-level files or `*.shared.json` files instead.
+- In `monoRepo` mode, directories listed in `repos` should be part of the root git repo and must not contain nested `.git` folders.
 
 ## Commands
 
@@ -46,6 +48,10 @@ Run any git command across all repos (root first, then sub-repos in order). All 
 
 Interactive setup: prompts for repo URLs and descriptions, writes `multi.json`, clones repos, runs full sync, commits.
 
+### `multi doctor`
+
+Diagnose workspace issues (missing/invalid `multi.json`, root git initialization, and `monoRepo` nested `.git` mismatches). Use `--strict` to fail on warnings.
+
 ### `multi open PATH`
 
 Open a project path in the Multi desktop app.
@@ -60,6 +66,13 @@ The workspace is configured via `multi.json` at the root. Key fields:
 - `vscode.skipSettings` — settings keys to exclude from merge
 
 For the full schema, consult `references/configuration.md`.
+
+### Mode Decision Table
+
+| Scenario | `monoRepo` |
+|---|---|
+| Independent git repositories under one workspace root | `false` |
+| One root git repo with project folders (no nested `.git` in listed folders) | `true` |
 
 ## VS Code Merging Overview
 
@@ -81,9 +94,13 @@ Running `multi sync rules`:
 
 ## Common Tasks
 
+**Automate workspace setup**: Create/update `multi.json`, then run `multi sync`.
+
 **Add a new repo to the workspace**: Add a `url` entry (and optional `name`/`description`) to the `repos` array in `multi.json`, then run `multi sync`.
 
 **Switch all repos to a feature branch**: Run `multi set-branch feature/my-branch`. Ensure all repos are clean first.
+
+**Diagnose mode mismatches**: Run `multi doctor` (or `multi doctor --strict` for CI enforcement).
 
 **Fix a missing launch config**: Check the source repo's `.vscode/launch.json`. Ensure `skipVSCode` is not `true` for that repo. Run `multi sync vscode launch`. For cross-repo compounds, use `.vscode/launch.shared.json` at workspace root.
 

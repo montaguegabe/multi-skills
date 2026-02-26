@@ -28,6 +28,13 @@ If keys are absent, these defaults apply:
 | `allowSymlinks` | boolean | `false` | Enable global symlink support (must also be enabled per-repo) |
 | `vscode` | object | see defaults | VS Code merge configuration |
 
+## Mode Decision Table
+
+| Scenario | `monoRepo` |
+|-------|------|
+| Independent git repositories inside one workspace | `false` |
+| One root git repo with project directories (no nested `.git`) | `true` |
+
 ## Per-Repo Fields (`repos[]`)
 
 | Field | Type | Required | Default | Description |
@@ -117,3 +124,4 @@ When `monoRepo: true`:
 - `repos` entries reference existing subdirectories by `name`
 - `multi set-branch` and `multi git` are disabled
 - VS Code merging still works normally
+- Listed directories are expected to be part of the root git repo (no nested `.git` folders)

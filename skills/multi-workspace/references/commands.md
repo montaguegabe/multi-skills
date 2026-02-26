@@ -12,21 +12,23 @@ Interactive workspace initialization.
 **Steps performed:**
 1. Prompts for repo URLs one at a time (with optional descriptions for each).
 2. Writes `multi.json` with collected URLs and descriptions.
-3. Initializes a git repo if none exists.
-4. Creates `README.md` from template with repo links (if it doesn't exist).
-5. Runs a full `multi sync`.
+3. Runs a full `multi sync` (which initializes root git and README if missing).
 6. Commits everything with message `"Multi init: Configure multi workspace"`.
 
 **Important**: This command is interactive — it prompts for input and cannot be scripted.
 
+**Automation**: For scripted setup, create/update `multi.json` and run `multi sync`.
+
 ## multi sync
 
 Run all sync operations in order:
-1. Clone/symlink missing sub-repos (skipped in monorepo mode).
-2. Update `.gitignore` and `.ignore`.
-3. Merge VS Code configs.
-4. Sync Cursor rules / generate `CLAUDE.md` + `AGENTS.md`.
-5. Sync ruff config.
+1. Initialize root git repo if missing.
+2. Create `README.md` if missing.
+3. Clone/symlink missing sub-repos (skipped in monorepo mode).
+4. Update `.gitignore` and `.ignore`.
+5. Merge VS Code configs.
+6. Sync Cursor rules / generate `CLAUDE.md` + `AGENTS.md`.
+7. Sync ruff config.
 
 ### Subcommands
 
@@ -85,6 +87,17 @@ multi git fetch --all
 ```
 
 **Disabled in monorepo mode. Interactive git commands (e.g., `git rebase -i`) are not supported.**
+
+## multi doctor
+
+Diagnose common workspace issues.
+
+**Checks include:**
+- `multi.json` discovery and parseability
+- Root git repository initialization
+- `monoRepo` mode mismatch (nested `.git` in listed directories)
+
+Use `--strict` to fail on warnings.
 
 ## multi open PATH
 
