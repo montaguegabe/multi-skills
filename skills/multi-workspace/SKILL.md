@@ -60,13 +60,19 @@ Open a project path in the Multi desktop app.
 
 The workspace is configured via `multi.json` at the root. Key fields:
 
-- `repos[]` — array of repo configs, each with `url`, optional `name`, `description`, `skipVSCode`, `allowSymlink`, `requiredTasks`, `requiredCompounds`, `requiredLaunchConfigurations`
+- `repos[]` — array of repo configs, each with `url`, optional `name`, `description`, `installSets`, `skipVSCode`, `allowSymlink`, `requiredTasks`, `requiredCompounds`, `requiredLaunchConfigurations`
 - `monoRepo` — treat repos as local subdirectories instead of cloning
 - `allowSymlinks` — enable symlinking to existing clones from `~/.multi/repos.json`
 - `agentInstructions.enabled` — opt into generated `AGENTS.md`/`CLAUDE.md` outputs from Markdown parts
 - `vscode.skipSettings` — settings keys to exclude from merge
 
 For the full schema, consult `references/configuration.md`.
+
+### Install Sets
+
+Repos can opt into named install/sync sets with `installSets`, for example public runtime repos can use `["default", "dev"]` while private development-only repos use `["dev"]`.
+
+Run `multi sync --install-set default` or `multi sync --set default` to clone, merge VS Code config, generate agent instructions, sync GitHub workflows, and update managed ignore files only for repos included in that set. Running `multi sync` with no install set includes every repo. Repos without `installSets` are included in every named set for backward compatibility.
 
 ### Mode Decision Table
 

@@ -48,6 +48,7 @@ If keys are absent, these defaults apply:
 | `url` | string | Yes (except monorepo) | — | Git URL (HTTPS or SSH) |
 | `name` | string | No (required in monorepo if no URL) | Last URL path segment | Directory name for the clone |
 | `description` | string | No | — | Repository description available to generated root agent instructions |
+| `installSets` | string[] | No | included in all sets | Named sync/install sets that include this repo when `multi sync --install-set` is used |
 | `skipVSCode` | boolean | No | `false` | Exclude this repo from all VS Code config merging |
 | `allowSymlink` | boolean | No | `false` | Allow symlinking to an existing clone for this repo |
 | `requiredTasks` | string[] | No | — | Task labels to include in the master compound task |
@@ -56,6 +57,33 @@ If keys are absent, these defaults apply:
 | `vscode.settingsOverrides` | object | No | — | Settings key-values to forcibly override during settings merge |
 
 Any additional keys in a repo config are set as attributes on the internal `Repository` object and accessible programmatically.
+
+### Install Sets
+
+Use `installSets` when a workspace has a public/runtime subset for installer scripts and a larger development set:
+
+```json
+{
+  "repos": [
+    {
+      "url": "https://github.com/org/product-cli",
+      "name": "cli",
+      "installSets": ["default", "dev"]
+    },
+    {
+      "url": "git@github.com:org/product-ios.git",
+      "name": "ios",
+      "installSets": ["dev"]
+    },
+    {
+      "url": "https://github.com/org/product-shared",
+      "name": "shared"
+    }
+  ]
+}
+```
+
+`multi sync --install-set default` syncs only repos in the `default` set, plus repos without `installSets`. `multi sync` with no install set includes every repo.
 
 ## VS Code Configuration (`vscode`)
 

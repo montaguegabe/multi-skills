@@ -30,6 +30,9 @@ Run all sync operations in order:
 6. Generate `CLAUDE.md` + `AGENTS.md` when `agentInstructions.enabled` is true.
 7. Sync root GitHub Actions workflows for monorepo workspaces.
 
+Options:
+- `--install-set NAME` / `--set NAME` — only sync repos included in the named `repos[].installSets` set. Repos without `installSets` are included in every named set. Without this option, all repos are included.
+
 ### Subcommands
 
 #### multi sync vscode
