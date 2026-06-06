@@ -27,8 +27,8 @@ Run all sync operations in order:
 3. Clone/symlink missing sub-repos (skipped in monorepo mode).
 4. Update `.gitignore` and `.ignore`.
 5. Merge VS Code configs.
-6. Sync Cursor rules / generate `CLAUDE.md` + `AGENTS.md`.
-7. Sync ruff config.
+6. Generate `CLAUDE.md` + `AGENTS.md` when `agentInstructions.enabled` is true.
+7. Sync root GitHub Actions workflows for monorepo workspaces.
 
 ### Subcommands
 
@@ -42,15 +42,11 @@ Merge all VS Code config files. Sub-subcommands for individual files:
 - `multi sync vscode extensions` — merge `extensions.json`
 - `multi sync vscode devcontainer` — sync `.devcontainer` folder
 
-#### multi sync rules
+#### multi sync agents
 
-1. Generate `.cursor/rules/repo-directories.mdc` from `description` fields in `multi.json`.
-2. For each directory with `.cursor/rules/*.mdc`: concatenate rule bodies into `CLAUDE.md` and `AGENTS.md`.
-3. Remove `CLAUDE.md`/`AGENTS.md` if no rules exist.
-
-#### multi sync ruff
-
-Copy `ruff.toml` from a sub-repo to workspace root. If multiple repos have `ruff.toml`, the last one wins. If none found and a root `ruff.toml` exists, it is deleted.
+1. Do nothing unless `agentInstructions.enabled` is true.
+2. For the workspace root and each sub-repo, concatenate `AGENTS.parts/*.md` in lexicographic order.
+3. Generate matching `CLAUDE.md` and `AGENTS.md` beside each parts directory.
 
 ## multi set-branch BRANCH_NAME
 

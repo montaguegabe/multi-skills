@@ -4,7 +4,7 @@ description: >-
   This skill should be used when the user asks about "multi.json",
   "multi workspace", "multi sync", "multi set-branch", "multi git",
   "multi init", branch switching across repos, VS Code config merging,
-  Cursor rules sync, "CLAUDE.md" generation, "AGENTS.md" generation,
+  agent instruction generation, "CLAUDE.md" generation, "AGENTS.md" generation,
   working with multiple repositories in a single workspace, or when a
   multi.json file is detected in the project. Provides knowledge of
   Multi CLI commands, configuration, and workspace conventions.
@@ -19,7 +19,7 @@ Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to w
 
 - `multi init` is **interactive** and cannot be scripted non-interactively.
 - Automation flow should use `multi.json` + `multi sync` (not `multi init`).
-- `CLAUDE.md` and `AGENTS.md` are **auto-generated** from `.cursor/rules/*.mdc` files. Never edit them directly.
+- `CLAUDE.md` and `AGENTS.md` are generated from `AGENTS.parts/*.md` only when `agentInstructions.enabled` is `true`. When generated, edit the parts files instead of the outputs.
 - All repos must have **clean working directories** before running `multi set-branch`.
 - `multi set-branch` and `multi git` are **disabled in monorepo mode**.
 - VS Code config files (`settings.json`, `launch.json`, `tasks.json`, `extensions.json`) at the workspace root are **generated** — do not edit directly. Use the repo-level files or `*.shared.json` files instead.
@@ -29,12 +29,12 @@ Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to w
 
 ### `multi sync`
 
-Run all sync operations: clone/symlink repos, update `.gitignore`, merge VS Code configs, sync Cursor rules, sync ruff config.
+Run all sync operations: clone/symlink repos, update `.gitignore`, merge VS Code configs, generate agent instructions, sync GitHub workflows.
 
 Subcommands for partial sync:
 - `multi sync vscode` — merge all VS Code configs (or specify: `settings`, `launch`, `tasks`, `extensions`, `devcontainer`)
-- `multi sync rules` — generate `CLAUDE.md`/`AGENTS.md` from Cursor rules and create `repo-directories.mdc` from repo descriptions
-- `multi sync ruff` — copy ruff config from a sub-repo to workspace root
+- `multi sync agents` — generate `CLAUDE.md`/`AGENTS.md` from `AGENTS.parts/*.md` when enabled
+- `multi sync github` — sync root GitHub Actions workflows for monorepo workspaces
 
 ### `multi set-branch BRANCH_NAME`
 
@@ -63,6 +63,7 @@ The workspace is configured via `multi.json` at the root. Key fields:
 - `repos[]` — array of repo configs, each with `url`, optional `name`, `description`, `skipVSCode`, `allowSymlink`, `requiredTasks`, `requiredCompounds`, `requiredLaunchConfigurations`
 - `monoRepo` — treat repos as local subdirectories instead of cloning
 - `allowSymlinks` — enable symlinking to existing clones from `~/.multi/repos.json`
+- `agentInstructions.enabled` — opt into generated `AGENTS.md`/`CLAUDE.md` outputs from Markdown parts
 - `vscode.skipSettings` — settings keys to exclude from merge
 
 For the full schema, consult `references/configuration.md`.
@@ -87,10 +88,11 @@ For detailed merging behavior, consult `references/vscode-sync.md`.
 
 ## CLAUDE.md / AGENTS.md Generation
 
-Running `multi sync rules`:
-1. Generates `.cursor/rules/repo-directories.mdc` from repo `description` fields in `multi.json`.
-2. For each directory containing `.cursor/rules/*.mdc`, concatenates all rule bodies into `CLAUDE.md` and `AGENTS.md` placed alongside the `.cursor` directory.
-3. If no rules exist, removes existing `CLAUDE.md`/`AGENTS.md`.
+Running `multi sync agents`:
+1. Does nothing unless `agentInstructions.enabled` is `true`.
+2. Concatenates `AGENTS.parts/*.md` in lexicographic order at the workspace root and each sub-repo.
+3. Writes matching `CLAUDE.md` and `AGENTS.md` files beside the parts directory.
+4. Includes root repo descriptions when `agentInstructions.includeRepoDescriptions` is `true`.
 
 ## Common Tasks
 

@@ -12,6 +12,11 @@ If keys are absent, these defaults apply:
 {
   "monoRepo": false,
   "allowSymlinks": false,
+  "agentInstructions": {
+    "enabled": false,
+    "partsDir": "AGENTS.parts",
+    "includeRepoDescriptions": true
+  },
   "vscode": {
     "skipSettings": ["workbench.colorCustomizations"]
   },
@@ -26,6 +31,7 @@ If keys are absent, these defaults apply:
 | `repos` | array | `[]` | Array of repository configuration objects |
 | `monoRepo` | boolean | `false` | Monorepo mode: skip git cloning/branch ops; `repos` entries are local subdirectories |
 | `allowSymlinks` | boolean | `false` | Enable global symlink support (must also be enabled per-repo) |
+| `agentInstructions` | object | see defaults | Optional generated agent instruction configuration |
 | `vscode` | object | see defaults | VS Code merge configuration |
 
 ## Mode Decision Table
@@ -41,7 +47,7 @@ If keys are absent, these defaults apply:
 |-------|------|----------|---------|-------------|
 | `url` | string | Yes (except monorepo) | — | Git URL (HTTPS or SSH) |
 | `name` | string | No (required in monorepo if no URL) | Last URL path segment | Directory name for the clone |
-| `description` | string | No | — | Used to generate `repo-directories.mdc` Cursor rule |
+| `description` | string | No | — | Repository description available to generated root agent instructions |
 | `skipVSCode` | boolean | No | `false` | Exclude this repo from all VS Code config merging |
 | `allowSymlink` | boolean | No | `false` | Allow symlinking to an existing clone for this repo |
 | `requiredTasks` | string[] | No | — | Task labels to include in the master compound task |
