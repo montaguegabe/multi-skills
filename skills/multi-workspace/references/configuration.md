@@ -20,6 +20,10 @@ If keys are absent, these defaults apply:
   "vscode": {
     "skipSettings": ["workbench.colorCustomizations"]
   },
+  "worktree": {
+    "symlink": [],
+    "copy": []
+  },
   "repos": []
 }
 ```
@@ -33,6 +37,7 @@ If keys are absent, these defaults apply:
 | `allowSymlinks` | boolean | `false` | Enable global symlink support (must also be enabled per-repo) |
 | `agentInstructions` | object | see defaults | Optional generated agent instruction configuration |
 | `vscode` | object | see defaults | VS Code merge configuration |
+| `worktree` | object | see defaults | Optional local path transfer configuration for `multi worktree add` |
 
 ## Mode Decision Table
 
@@ -51,6 +56,8 @@ If keys are absent, these defaults apply:
 | `installSets` | string[] | No | included in all sets | Named sync/install sets that include this repo when `multi sync --install-set` is used |
 | `skipVSCode` | boolean | No | `false` | Exclude this repo from all VS Code config merging |
 | `allowSymlink` | boolean | No | `false` | Allow symlinking to an existing clone for this repo |
+| `manageGitignore` | boolean | No | `true` | Allow Multi to manage generated entries in this repo's `.gitignore` |
+| `fixedBranch` | string | No | — | Keep this repo on a fixed branch during branch switching and worktree creation |
 | `requiredTasks` | string[] | No | — | Task labels to include in the master compound task |
 | `requiredCompounds` | string[] | No | — | Compound names to include in the master launch compound |
 | `requiredLaunchConfigurations` | string[] | No | — | Launch config names to include in the master launch compound |
@@ -84,6 +91,71 @@ Use `installSets` when a workspace has a public/runtime subset for installer scr
 ```
 
 `multi sync --install-set default` syncs only repos in the `default` set, plus repos without `installSets`. `multi sync` with no install set includes every repo.
+
+Use `--install-set` before sync subcommands when filtering a partial sync:
+
+```bash
+multi sync --set default agents
+multi sync --install-set default vscode settings
+```
+
+### Fixed Branches
+
+Use `fixedBranch` for repositories that should remain on a shared branch while the rest of the workspace moves to a feature branch:
+
+```json
+{
+  "repos": [
+    { "url": "https://github.com/org/app" },
+    {
+      "url": "https://github.com/org/shared-fixtures",
+      "fixedBranch": "main"
+    }
+  ]
+}
+```
+
+`multi set-branch` and `multi worktree add` leave fixed-branch repos on their configured branch.
+
+### Gitignore Management
+
+By default Multi manages generated entries in repo `.gitignore` files. Set `manageGitignore: false` for a repo when those entries should be maintained manually:
+
+```json
+{
+  "repos": [
+    {
+      "url": "https://github.com/org/manual-gitignore-repo",
+      "manageGitignore": false
+    }
+  ]
+}
+```
+
+## Worktree Transfer Configuration
+
+`worktree` config controls local ignored files transferred by `multi worktree add`.
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `symlink` | string[] | `[]` | Gitignored workspace-relative paths to symlink from the original workspace into the new worktree |
+| `copy` | string[] | `[]` | Gitignored workspace-relative paths to copy from the original workspace into the new worktree |
+
+All paths must be relative to the workspace root, must stay inside the workspace, and must be ignored by the owning Git repository. Existing destinations in the new worktree are left unchanged.
+
+Example:
+
+```json
+{
+  "worktree": {
+    "symlink": [".env", ".venv"],
+    "copy": [".cursor/local.json", "api/.env.local"]
+  },
+  "repos": [
+    { "url": "https://github.com/org/api", "name": "api" }
+  ]
+}
+```
 
 ## VS Code Configuration (`vscode`)
 
