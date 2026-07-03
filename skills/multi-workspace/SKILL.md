@@ -20,6 +20,7 @@ Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to w
 - `multi init` can run interactively or non-interactively with `--repo` / `--repo-description` or `--github-repo` / `--github-description`.
 - For existing or generated configs, automation should create/update `multi.json` and run `multi sync`.
 - For isolated feature work in a multi workspace, use `multi worktree add`; do not hand-roll root + sub-repo worktree creation in downstream tools.
+- When using `multi` with worktrees, keep the worktrees in a sibling directory named after the workspace with `-worktrees` appended; for example, `openbase-coder-workspace` should use sibling worktrees under `openbase-coder-workspace-worktrees`.
 - `CLAUDE.md` and `AGENTS.md` are generated from `AGENTS.parts/*.md` only when `agentInstructions.enabled` is `true`. When generated, edit the parts files instead of the outputs.
 - All repos must have **clean working directories** before running `multi set-branch`.
 - All repos must have **clean working directories** before running `multi worktree add`.
@@ -151,6 +152,8 @@ Running `multi sync agents`:
 **Switch all repos to a feature branch**: Run `multi set-branch feature/my-branch`. Ensure all repos are clean first.
 
 **Create an isolated workspace for parallel agent work**: Run `multi worktree add task-name --branch feature/task-name --install-set default` from the multi workspace root when working from a default/public install. Use the appropriate install set for the source workspace. Downstream schedulers should call this command rather than creating sub-repo worktrees themselves.
+
+Store multi worktrees in a sibling `*-worktrees` directory for the source workspace, such as `openbase-coder-workspace-worktrees` next to `openbase-coder-workspace`.
 
 **Grant and accept repo access**: Repo owners run `multi collaborator add USERNAME --yes`; invitees run `multi collaborator accept --yes` with their own `gh` authentication.
 
