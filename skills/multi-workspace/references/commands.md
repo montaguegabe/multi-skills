@@ -125,16 +125,29 @@ Switch all repos to a branch.
 
 **Disabled in monorepo mode.**
 
+## multi branch
+
+Show the current branch of the root repo and every sub-repo.
+
+**Preconditions:** none — read-only. Works with dirty working trees, mismatched branches, and detached HEADs (reported as `(detached at <short-sha>)`), including in linked worktrees where `.git` is a file.
+
+**Behavior:**
+- Prints the root branch, then each sub-repo's branch.
+- Flags repos not on their expected branch (root branch, or `fixedBranch`).
+- Exits nonzero when any repo is off its expected branch.
+- In monorepo mode, only the root branch is reported.
+
 ## multi git GIT_ARGS...
 
 Run any git command across all repos.
 
 **Preconditions:**
-- All repos must be on the same branch.
+- All repos must be on the same branch (use `multi branch` to inspect when they mismatch).
+- Working trees may be dirty; read-only queries such as `multi git branch --show-current` work with uncommitted changes.
 
 **Behavior:**
 - Runs the command in root repo first, then each sub-repo in order.
-- Passes all arguments directly to git.
+- Passes all arguments directly to git, including unknown options like `--show-current`.
 
 **Examples:**
 ```bash
