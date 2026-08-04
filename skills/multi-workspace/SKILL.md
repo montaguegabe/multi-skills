@@ -14,7 +14,7 @@ version: 0.3.0
 
 # Multi Workspace
 
-Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to work across multiple Git repos in a single workspace. Sub-repos are cloned as directories inside the workspace root and `.gitignored` — no submodules are used. The CLI keeps all repos on the same branch and merges their VS Code configurations.
+Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to work across multiple Git repos in a single workspace. Sub-repos are cloned as directories inside the workspace root and `.gitignored` — no submodules are used. The CLI keeps repos on their expected branches (root branch for unlocked repos, `fixedBranch` for fixed repos) and merges their VS Code configurations.
 
 ## Key Constraints
 
@@ -26,7 +26,7 @@ Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to w
 - All repos must have **clean working directories** before running `multi set-branch`.
 - All repos must have **clean working directories** before running `multi worktree add`.
 - To **check** branches without switching, use `multi branch` — it is read-only and works with dirty working trees, mismatched branches, and detached HEADs (including worktrees).
-- `multi git` requires all repos to be on the **same branch**, but working trees may be dirty (read-only queries like `multi git branch --show-current` work with uncommitted changes).
+- `multi git` requires all repos to be on their **expected branch**: unlocked repos match the root branch, while repos with `fixedBranch` match that fixed branch. Working trees may be dirty (read-only queries like `multi git branch --show-current` work with uncommitted changes). `multi git` still runs the same git arguments in fixed repos, so branch-mutating commands can affect them.
 - `multi set-branch` and `multi git` are **disabled in monorepo mode**.
 - `multi worktree add` is **disabled in monorepo mode**.
 - VS Code config files (`settings.json`, `launch.json`, `tasks.json`, `extensions.json`) at the workspace root are **generated** — do not edit directly. Use the repo-level files or `*.shared.json` files instead.
@@ -36,7 +36,7 @@ Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to w
 
 ### `multi sync`
 
-Run all sync operations: clone/symlink repos, update `.gitignore`, merge VS Code configs, generate agent instructions, sync GitHub workflows.
+Run all sync operations: clone/symlink repos, update `.gitignore`, merge VS Code configs, generate agent instructions, sync GitHub workflows. Fresh clone/symlink setup checks fixed repos out to `fixedBranch`; unlocked repos mirror the root branch when branch mirroring is enabled.
 
 Subcommands for partial sync:
 - `multi sync vscode` — merge all VS Code configs (or specify: `settings`, `launch`, `tasks`, `extensions`, `devcontainer`)
@@ -53,7 +53,7 @@ Switch all repos to a branch. If the branch exists locally or on the remote, che
 
 ### `multi git GIT_ARGS...`
 
-Run any git command across all repos (root first, then sub-repos in order). All repos must be on the same branch; working trees may be dirty. Git options pass through, so `multi git branch --show-current` works. Example: `multi git pull`, `multi git push -u origin feature/foo`.
+Run any git command across all repos (root first, then sub-repos in order). All repos must be on their expected branch (root branch for unlocked repos, `fixedBranch` for fixed repos); working trees may be dirty. Git options pass through, so `multi git branch --show-current` works. Example: `multi git pull`. Be careful with branch-mutating commands because fixed repos receive the same git arguments.
 
 ### `multi worktree add NAME [--branch BRANCH_NAME] [--install-set NAME] [--base-ref REF]`
 

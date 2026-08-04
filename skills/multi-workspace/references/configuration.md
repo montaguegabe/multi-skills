@@ -117,6 +117,8 @@ Use `fixedBranch` for repositories that should remain on a shared branch while t
 
 `multi set-branch` and `multi worktree add` leave fixed-branch repos on their configured branch.
 
+The expected-branch invariant lives in `multi.git_helpers.expected_branch_for_repo`: `fixedBranch` wins for fixed repos, otherwise the repo follows the root workspace branch. Branch-aware command implementations should use that shared helper.
+
 ### Gitignore Management
 
 By default Multi manages generated entries in repo `.gitignore` files. Set `manageGitignore: false` for a repo when those entries should be maintained manually:

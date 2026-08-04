@@ -142,12 +142,13 @@ Show the current branch of the root repo and every sub-repo.
 Run any git command across all repos.
 
 **Preconditions:**
-- All repos must be on the same branch (use `multi branch` to inspect when they mismatch).
+- All repos must be on their expected branch: unlocked repos match the root branch, while repos with `fixedBranch` match that fixed branch. This invariant lives in `multi.git_helpers.expected_branch_for_repo`.
 - Working trees may be dirty; read-only queries such as `multi git branch --show-current` work with uncommitted changes.
 
 **Behavior:**
 - Runs the command in root repo first, then each sub-repo in order.
 - Passes all arguments directly to git, including unknown options like `--show-current`.
+- Still runs the exact same git arguments in fixed-branch repos. Branch-mutating commands can affect fixed repos unless a future command option deliberately skips or protects them.
 
 **Examples:**
 ```bash
