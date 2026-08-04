@@ -28,6 +28,8 @@ If keys are absent, these defaults apply:
 }
 ```
 
+Use the configured parts directory for tracked Claude Code and Codex hook instructions that should appear in generated agent files. Root and subrepo parts are generated independently: root parts produce root `AGENTS.md`/`CLAUDE.md`, while each subrepo's own parts produce that subrepo's outputs. Multi does not manage executable tool runtime hook config files.
+
 ## Top-Level Fields
 
 | Field | Type | Default | Description |

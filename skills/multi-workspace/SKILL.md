@@ -23,6 +23,7 @@ Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to w
 - For isolated feature work in a multi workspace, use `multi worktree add`; do not hand-roll root + sub-repo worktree creation in downstream tools.
 - When using `multi` with worktrees, keep the worktrees in a sibling directory named after the workspace with `-worktrees` appended; for example, `openbase-coder-workspace` should use sibling worktrees under `openbase-coder-workspace-worktrees`.
 - `CLAUDE.md` and `AGENTS.md` are generated from `AGENTS.parts/*.md` only when `agentInstructions.enabled` is `true`. When generated, edit the parts files instead of the outputs.
+- Claude Code and Codex hook instructions that should be tracked with the workspace should live in `AGENTS.parts/*.md`; Multi writes them into both generated agent files. Root and subrepo parts are generated independently, and Multi does not manage executable runtime hook config files.
 - All repos must have **clean working directories** before running `multi set-branch`.
 - All repos must have **clean working directories** before running `multi worktree add`.
 - To **check** branches without switching, use `multi branch check` (or the backwards-compatible `multi branch`) — it is read-only and works with dirty working trees, mismatched branches, and detached HEADs (including worktrees).
@@ -149,6 +150,8 @@ Running `multi sync agents`:
 2. Concatenates `AGENTS.parts/*.md` in lexicographic order at the workspace root and each sub-repo.
 3. Writes matching `CLAUDE.md` and `AGENTS.md` files beside the parts directory.
 4. Includes root repo descriptions when `agentInstructions.includeRepoDescriptions` is `true`.
+
+For Claude Code and Codex hook instructions, add concise Markdown parts such as `AGENTS.parts/30-hooks.md`. Put workspace-wide hook instructions in the root parts directory and repo-specific hook instructions in each subrepo's own parts directory. If a hook must appear in multiple generated files, duplicate or template that source part; root parts are not inherited into subrepo outputs.
 
 ## Common Tasks
 

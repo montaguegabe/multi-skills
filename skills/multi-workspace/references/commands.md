@@ -110,6 +110,8 @@ Merge all VS Code config files. Sub-subcommands for individual files:
 2. For the workspace root and each sub-repo, concatenate `AGENTS.parts/*.md` in lexicographic order.
 3. Generate matching `CLAUDE.md` and `AGENTS.md` beside each parts directory.
 
+Claude Code and Codex hook instructions should be written as tracked Markdown parts, for example `AGENTS.parts/30-hooks.md`. Root and subrepo parts are generated independently, so place repo-specific hook instructions in that repo's own parts directory. Multi does not manage executable runtime hook config files.
+
 ## multi set-branch BRANCH_NAME
 
 Switch all repos to a branch.
