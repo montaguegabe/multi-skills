@@ -125,9 +125,9 @@ Switch all repos to a branch.
 
 **Disabled in monorepo mode.**
 
-## multi branch
+## multi branch check
 
-Show the current branch of the root repo and every sub-repo.
+Check expected branch alignment for the root repo and every sub-repo. `multi branch` remains a backwards-compatible alias for the same check.
 
 **Preconditions:** none — read-only. Works with dirty working trees, mismatched branches, and detached HEADs (reported as `(detached at <short-sha>)`), including in linked worktrees where `.git` is a file.
 

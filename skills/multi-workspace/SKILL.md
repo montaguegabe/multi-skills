@@ -25,7 +25,7 @@ Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to w
 - `CLAUDE.md` and `AGENTS.md` are generated from `AGENTS.parts/*.md` only when `agentInstructions.enabled` is `true`. When generated, edit the parts files instead of the outputs.
 - All repos must have **clean working directories** before running `multi set-branch`.
 - All repos must have **clean working directories** before running `multi worktree add`.
-- To **check** branches without switching, use `multi branch` — it is read-only and works with dirty working trees, mismatched branches, and detached HEADs (including worktrees).
+- To **check** branches without switching, use `multi branch check` (or the backwards-compatible `multi branch`) — it is read-only and works with dirty working trees, mismatched branches, and detached HEADs (including worktrees).
 - `multi git` requires all repos to be on their **expected branch**: unlocked repos match the root branch, while repos with `fixedBranch` match that fixed branch. Working trees may be dirty (read-only queries like `multi git branch --show-current` work with uncommitted changes). `multi git` still runs the same git arguments in fixed repos, so branch-mutating commands can affect them.
 - `multi set-branch` and `multi git` are **disabled in monorepo mode**.
 - `multi worktree add` is **disabled in monorepo mode**.
@@ -43,9 +43,9 @@ Subcommands for partial sync:
 - `multi sync agents` — generate `CLAUDE.md`/`AGENTS.md` from `AGENTS.parts/*.md` when enabled
 - `multi sync github` — sync root GitHub Actions workflows for monorepo workspaces
 
-### `multi branch`
+### `multi branch check`
 
-Show the current branch of the root repo and every sub-repo, flagging repos that are not on their expected branch (root branch, or `fixedBranch`). Read-only: works with dirty working trees, mismatched branches, and detached HEADs (reported as `(detached at <short-sha>)`), including in worktrees created by `multi worktree add`. Exits nonzero when any repo is off its expected branch. In monorepo mode, only the root branch is reported.
+Show the current branch of the root repo and every sub-repo, flagging repos that are not on their expected branch (root branch, or `fixedBranch`). Read-only: works with dirty working trees, mismatched branches, and detached HEADs (reported as `(detached at <short-sha>)`), including in worktrees created by `multi worktree add`. Exits nonzero when any repo is off its expected branch. In monorepo mode, only the root branch is reported. `multi branch` remains a backwards-compatible alias for the same check.
 
 ### `multi set-branch BRANCH_NAME`
 
@@ -156,7 +156,7 @@ Running `multi sync agents`:
 
 **Add a new repo to the workspace**: Add a `url` entry (and optional `name`/`description`) to the `repos` array in `multi.json`, then run `multi sync`.
 
-**Check which branch every repo is on**: Run `multi branch`. Safe with dirty trees, mismatched branches, and detached HEADs; exits nonzero on mismatch.
+**Check expected branch alignment**: Run `multi branch check` (or `multi branch`). Safe with dirty trees, mismatched branches, and detached HEADs; exits nonzero on mismatch.
 
 **Switch all repos to a feature branch**: Run `multi set-branch feature/my-branch`. Ensure all repos are clean first.
 
