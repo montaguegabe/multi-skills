@@ -164,7 +164,7 @@ multi git fetch --all
 
 ## multi worktree add NAME
 
-Create a sibling Git worktree for an entire multi workspace.
+Create an isolated Git worktree for an entire multi workspace. The worktree is created at `<parent>/<workspace-dirname>-worktrees/NAME` — a sibling `-worktrees` directory next to the workspace root, created automatically if missing.
 
 Options:
 - `--branch BRANCH_NAME` — branch name for the worktree. Defaults to `NAME`.
@@ -172,12 +172,12 @@ Options:
 - `--base-ref REF` — base ref for newly created root and sub-repo branches. Defaults to `HEAD`.
 
 **Preconditions:**
-- Root repo and all included sub-repos must have clean working directories.
 - The command is disabled in monorepo mode.
-- The destination sibling directory must not already exist.
+- The destination directory must not already exist.
+- Dirty working trees are fine: the worktree branches from a commit (`HEAD` or `--base-ref`) and never modifies the source working trees.
 
 **Behavior:**
-1. Creates a sibling root worktree next to the current workspace root.
+1. Creates a root worktree at `<parent>/<workspace-dirname>-worktrees/NAME`, creating the `-worktrees` directory if needed.
 2. Runs `multi sync` in the new root, forwarding `--install-set` when provided.
 3. Checks included sub-repos out to the target branch, except repos with `fixedBranch`.
 4. If `--base-ref` is provided and a sub-repo branch needs to be created, Multi tries to fetch that base ref from the source sub-repo and create the branch from it.

@@ -21,11 +21,11 @@ Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to w
 - `multi init` can run interactively or non-interactively with `--repo` / `--repo-description` or `--github-repo` / `--github-description`.
 - For existing or generated configs, automation should create/update `multi.json` and run `multi sync`.
 - For isolated feature work in a multi workspace, use `multi worktree add`; do not hand-roll root + sub-repo worktree creation in downstream tools.
-- When using `multi` with worktrees, keep the worktrees in a sibling directory named after the workspace with `-worktrees` appended; for example, `openbase-coder-workspace` should use sibling worktrees under `openbase-coder-workspace-worktrees`.
+- `multi worktree add` places worktrees in a sibling directory named after the workspace with `-worktrees` appended; for example, worktrees of `openbase-coder-workspace` live under `openbase-coder-workspace-worktrees`. The directory is created automatically if missing.
 - `CLAUDE.md` and `AGENTS.md` are generated from `AGENTS.parts/*.md` only when `agentInstructions.enabled` is `true`. When generated, edit the parts files instead of the outputs.
 - Claude Code and Codex hook instructions that should be tracked with the workspace should live in `AGENTS.parts/*.md`; Multi writes them into both generated agent files. Root and subrepo parts are generated independently, and Multi does not manage executable runtime hook config files.
 - All repos must have **clean working directories** before running `multi set-branch`.
-- All repos must have **clean working directories** before running `multi worktree add`.
+- `multi worktree add` works with **dirty working directories**: it branches from a commit (`HEAD` or `--base-ref`) and never modifies the source working trees.
 - To **check** branches without switching, use `multi branch check` (or the backwards-compatible `multi branch`) — it is read-only and works with dirty working trees, mismatched branches, and detached HEADs (including worktrees).
 - `multi git` requires all repos to be on their **expected branch**: unlocked repos match the root branch, while repos with `fixedBranch` match that fixed branch. Working trees may be dirty (read-only queries like `multi git branch --show-current` work with uncommitted changes). `multi git` still runs the same git arguments in fixed repos, so branch-mutating commands can affect them.
 - `multi set-branch` and `multi git` are **disabled in monorepo mode**.
@@ -58,10 +58,10 @@ Run any git command across all repos (root first, then sub-repos in order). All 
 
 ### `multi worktree add NAME [--branch BRANCH_NAME] [--install-set NAME] [--base-ref REF]`
 
-Create an isolated sibling git worktree for a whole multi workspace. This is the preferred command when an agent, scheduler, or automation needs a separate copy of a multi workspace for parallel work.
+Create an isolated git worktree for a whole multi workspace. This is the preferred command when an agent, scheduler, or automation needs a separate copy of a multi workspace for parallel work.
 
 Behavior:
-- Creates a sibling root worktree named `NAME` next to the current workspace root.
+- Creates a root worktree named `NAME` inside the sibling `<workspace-dirname>-worktrees` directory (created if missing).
 - Uses `NAME` as the branch name unless `--branch` is provided.
 - Runs `multi sync` in the new worktree to populate configured sub-repos and generated files.
 - When `--install-set` is provided, only repos in that install set are synced and checked out. Use this for public/default installs so private dev-only repos are not cloned.
@@ -165,7 +165,7 @@ For Claude Code and Codex hook instructions, add concise Markdown parts such as 
 
 **Create an isolated workspace for parallel agent work**: Run `multi worktree add task-name --branch feature/task-name --install-set default` from the multi workspace root when working from a default/public install. Use the appropriate install set for the source workspace. Downstream schedulers should call this command rather than creating sub-repo worktrees themselves.
 
-Store multi worktrees in a sibling `*-worktrees` directory for the source workspace, such as `openbase-coder-workspace-worktrees` next to `openbase-coder-workspace`.
+`multi worktree add` stores worktrees in a sibling `*-worktrees` directory for the source workspace, such as `openbase-coder-workspace-worktrees` next to `openbase-coder-workspace`.
 
 **Grant and accept repo access**: Repo owners run `multi collaborator add USERNAME --yes`; invitees run `multi collaborator accept --yes` with their own `gh` authentication.
 
