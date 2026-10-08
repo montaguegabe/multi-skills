@@ -101,6 +101,10 @@ Important: `multi collaborator add` creates invitations as the repo owner/admin.
 
 Diagnose workspace issues (missing/invalid `multi.json`, root git initialization, and `monoRepo` nested `.git` mismatches). Use `--strict` to fail on warnings.
 
+### `multi hooks install|status|uninstall`
+
+Workspace-level git hooks. With `"hooks": {"path": ".githooks"}` in `multi.json`, multi points `core.hooksPath` of the root (relative, so each root worktree uses its own checkout) and of every sub-repo (absolute path of that workspace's hooks directory) at the one directory. `multi sync`, `multi init` and `multi worktree add` install it automatically; `multi hooks status` lists each repo's state and exits 1 when any cloned repo is not installed; `multi hooks install` repairs it; `multi doctor` warns. Never set `core.hooksPath` or edit `.git/hooks` in a sub-repo by hand; repo-specific hooks are chained from the workspace hooks instead.
+
 ### `multi open PATH`
 
 Open a project path in the Multi desktop app.
@@ -114,6 +118,7 @@ The workspace is configured via `multi.json` at the root. Key fields:
 - `allowSymlinks` — enable symlinking to existing clones from `~/.multi/repos.json`
 - `agentInstructions.enabled` — opt into generated `AGENTS.md`/`CLAUDE.md` outputs from Markdown parts
 - `vscode.skipSettings` — settings keys to exclude from merge
+- `hooks.path` — workspace-relative directory of git hooks that every repo runs (see `multi hooks`)
 - `worktree.symlink` — gitignored local paths to symlink into new `multi worktree add` workspaces
 - `worktree.copy` — gitignored local paths to copy into new `multi worktree add` workspaces
 
