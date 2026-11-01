@@ -37,11 +37,12 @@ Multi (`multi-workspace` on PyPI) is a CLI tool that enables VS Code/Cursor to w
 
 ### `multi sync`
 
-Run all sync operations: clone/symlink repos, update `.gitignore`, merge VS Code configs, generate agent instructions, sync GitHub workflows, link sub-repo Codex skills. Fresh clone/symlink setup checks fixed repos out to `fixedBranch`; unlocked repos mirror the root branch when branch mirroring is enabled.
+Run all sync operations: clone/symlink repos, update `.gitignore`, merge VS Code configs, generate agent instructions, generate the root `AGENTS.override.md` for Codex, sync GitHub workflows, link sub-repo Codex skills. Fresh clone/symlink setup checks fixed repos out to `fixedBranch`; unlocked repos mirror the root branch when branch mirroring is enabled.
 
 Subcommands for partial sync:
 - `multi sync vscode` — merge all VS Code configs (or specify: `settings`, `launch`, `tasks`, `extensions`, `devcontainer`)
 - `multi sync agents` — generate `CLAUDE.md`/`AGENTS.md` from `AGENTS.parts/*.md` when enabled
+- `multi sync codex` — write the root `AGENTS.override.md` that Codex reads instead of `AGENTS.md`: the root `AGENTS.md` verbatim, then one `## Instructions for \`<repo>/\`` section per sub-repo `AGENTS.md` (or `CLAUDE.md`). Needed because Codex takes one instruction file per directory from the git root down to the working directory and never looks into sub-repos. The root `AGENTS.md` is never modified; an `AGENTS.override.md` that multi did not generate (no marker on line 1) is never replaced, only warned about. The file is gitignored and `multi doctor` warns when it is stale. Codex truncates past 32 KiB (`project_doc_max_bytes`); multi warns when the override exceeds that. Disable with `"codexOverride": {"enabled": false}`.
 - `multi sync github` — sync root GitHub Actions workflows for monorepo workspaces
 - `multi sync skills` — link each sub-repo's `.agents/skills/<name>` into the root `.agents/skills` so Codex discovers them (Codex only searches upward from the working directory; Claude Code already discovers nested `.claude/skills`, so those are not linked). Links are relative, gitignored in the generated-files block, and removed when the source skill disappears. The workspace's own entry of the same name is never replaced. Disable with `"skills": {"enabled": false}`.
 
